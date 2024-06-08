@@ -72,6 +72,40 @@ def split_nodes_image(old_nodes):
       
       return new_nodes    
             
+def split_nodes_link(old_nodes):
+      new_nodes = []
+      if old_nodes == None:
+            raise ValueError("The list cannot be empty")
+      for node in old_nodes:
+            if node.text_type is not text_type_text:
+                  new_nodes.append(node)
+                  continue                
+            
+            original_text = node.text
+            links = extract_markdown_html(original_text)
+
+            if len(html) == 0:
+                  new_nodes.append(node)
+                  continue
+            for block in html: 
+                  sections = original_text.split(f"![{image[0]}]({image[1]})", 1)
+                  if len(sections) != 2:
+                        raise ValueError("Invalid markdown, image section not closed.")
+                  if sections[0] != "":
+                        new_nodes.append(TextNode(sections[0], text_type_text))
+                  new_nodes.append(
+                        TextNode(
+                              image[0],
+                              text_type_image,
+                              image[1]
+                        )
+                  )
+                  original_text = sections[1]
+            if original_text != "":
+                  new_nodes.append(TextNode(original_text, text_type_text))
+      
+      return new_nodes    
+            
             
 
 
