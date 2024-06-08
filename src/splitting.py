@@ -84,47 +84,27 @@ def split_nodes_link(old_nodes):
             original_text = node.text
             links = extract_markdown_html(original_text)
 
-            if len(html) == 0:
+            if len(links) == 0:
                   new_nodes.append(node)
                   continue
-            for block in html: 
-                  sections = original_text.split(f"![{image[0]}]({image[1]})", 1)
+            for link in links:
+                  sections = original_text.split(f"[{link[0]}]({link[1]})", 1)
                   if len(sections) != 2:
-                        raise ValueError("Invalid markdown, image section not closed.")
+                        raise ValueError("Invalid markdown, link section not closed.")
                   if sections[0] != "":
                         new_nodes.append(TextNode(sections[0], text_type_text))
                   new_nodes.append(
                         TextNode(
-                              image[0],
-                              text_type_image,
-                              image[1]
+                              link[0],
+                              text_type_link,
+                              link[1]
                         )
                   )
                   original_text = sections[1]
             if original_text != "":
                   new_nodes.append(TextNode(original_text, text_type_text))
-      
       return new_nodes    
-            
-            
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
 
 node = TextNode(
     "This is text with an ![image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/zjjcJKZ.png) and another ![second image](https://storage.googleapis.com/qvault-webapp-dynamic-assets/course_assets/3elNhQu.png)",
@@ -135,12 +115,25 @@ print(new_nodes)
 
 
 
+node_2 = TextNode(
+            "This is text with a [link](https://boot.dev) and [another link](https://blog.boot.dev) with text that follows",
+            text_type_text,
+        )
+new_nodes = split_nodes_link([node_2])
+
+def text_to_textnodes(text):
+      nodes = [TextNode(text, text_type_text)]
+      nodes = split_nodes_delimiter(nodes, "**", text_type_bold)
+      nodes = split_nodes_delimiter(nodes, "*", text_type_italic)
+      nodes = split_nodes_delimiter(nodes, "`", text_type_code)
+      nodes = split_nodes_image(nodes)
+      nodes = split_nodes_link(nodes)
+      return nodes 
 
 
-
-
-
-
+def markdown_to_blocks(markdown): 
+      block_list = []
+      
 
 
 
