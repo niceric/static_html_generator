@@ -131,9 +131,19 @@ def text_to_textnodes(text):
       return nodes 
 
 
+text_document = 'This is **bolded** paragraph \n\nThis is another paragraph with *italic* text and `code` here \nThis is the same paragraph on a new line \n\n* This is a list \n* with items'
+
 def markdown_to_blocks(markdown): 
       block_list = []
-      
+      splitted_text = markdown.split("\n\n")
+      for split in splitted_text:
+            block_list.append(split.replace("\n", ""))
+      return block_list
+
+print(markdown_to_blocks(text_document))
+
+
+
 
 
 
