@@ -1,6 +1,14 @@
 import re
 from textnode import text_node_to_html_node, text_type_bold, text_type_code, text_type_image, text_type_italic, text_type_link, text_type_text, TextNode
 
+block_type_paragraph = "paragraph"
+block_type_heading = "heading"
+block_type_code = "code"
+block_type_quote = "quote"
+block_type_unordered_list = "unordered_list"
+block_type_ordered_list = "ordered_list"
+
+
 
 def extract_markdown_images(text):
     matches = re.findall(r"!\[(.*?)\]\((.*?)\)", text)
@@ -131,17 +139,70 @@ def text_to_textnodes(text):
       return nodes 
 
 
-text_document = 'This is **bolded** paragraph \n\nThis is another paragraph with *italic* text and `code` here \nThis is the same paragraph on a new line \n\n* This is a list \n* with items'
+text_document = 'This is **bolded** PELLEparagraph \n\nThis is another paragraph with *italic* text and `code` here \nThis is the same paragraph on a new line \n\n* This is a list \n* with items\n\n\n\n\n\n'
+markdown_text = """This is **bolded** PELLEparagraph
+
+This is another paragraph with *italic* text and `code` here
+This is the same paragraph on a new line
+
+* This is a list
+* with items
+"""
+
 
 def markdown_to_blocks(markdown): 
       block_list = []
       splitted_text = markdown.split("\n\n")
       for split in splitted_text:
-            block_list.append(split.replace("\n", ""))
+            if split == "":
+                  continue
+            block_list.append(split.strip())
       return block_list
 
-print(markdown_to_blocks(text_document))
+print(markdown_to_blocks(markdown_text))
 
+def block_to_block_type(block):
+      splitted_block = block.split()
+      if (
+            splitted_block.startswith("# ")
+            or splitted_block.startswith("## ")
+            or splitted_block.startswith("### ")
+            or splitted_block.startswith("#### ")
+            or splitted_block.startswith("##### ")
+            or splitted_block.startswith("###### ")
+      ): 
+            return block_type_heading
+      if len(splitted_block) > 1 and splitted_block[0].startswith("```") and splitted_block[-1].startswith("```"):
+            return block_type_code  
+      if splitted_block.startswith(">"):
+            for line in splitted_block:
+                  if not line.startswith(">"):
+                        return block_type_paragraph
+            return block_type_quote
+      if splitted_block.startswith("* "):
+            for line in splitted_block:
+                  if not line.startswith("* "):
+                        return block_type_paragraph
+            return block_type_unordered_list
+      if splitted_block.startswith("- "):
+            for line in splitted_block:
+                  if not line.startswith("- "):
+                        return block_type_paragraph
+            return block_type_unordered_list
+      if splitted_block.startswith("1. "):
+            i = 1
+            for line in splitted_block:
+                  if not line.startswith(f"{i}. "):
+                        return block_type_paragraph
+                  i += 1
+            return block_type_ordered_list
+      return block_type_paragraph
+
+
+for block in markdown_to_blocks(markdown_text):
+      print(block_to_block_type(block))
+
+# print(block_to_block_type(markdown_text))
 
 
 
